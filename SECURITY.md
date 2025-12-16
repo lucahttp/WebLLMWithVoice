@@ -171,6 +171,13 @@ git secrets --scan
 
 ## Known Limitations
 
+### Development Dependencies
+- esbuild (via Vite) has a known moderate security issue affecting the dev server
+- **Impact:** Only affects local development, not production builds
+- **Mitigation:** Do not expose dev server to untrusted networks
+- **Status:** Will be addressed in future Vite updates
+- Run `npm audit` regularly and update dependencies
+
 ### WebGPU Security
 - WebGPU is still evolving
 - Some browsers mark it as "unsafe"
