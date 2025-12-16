@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebLLM with Voice - Realtime Whisper + Edge TTS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .config-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-assistant {
+            background: #e9ecef;
+            color: #212529;
+        }
+
+        .message-transcription {
+            background: #d1ecf1;
+            color: #0c5460;
+            font-style: italic;
+        }
+
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .model-status {
+            padding: 10px;
+            background: #fff3cd;
+            color: #856404;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 WebLLM with Voice</h1>
+            <p>Realtime Whisper-WebGPU Speech Recognition + Edge TTS + LLM Integration</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Configuration Section -->
+            <div class="section">
+                <h2>⚙️ Configuration</h2>
+                <div class="grid-2">
+                    <div class="config-group">
+                        <label for="llm-provider">LLM Provider:</label>
+                        <select id="llm-provider">
+                            <option value="webllm">WebLLM (Local - Phi/Gemma)</option>
+                            <option value="gemini">Google Gemini API</option>
+                            <option value="openai">OpenAI API</option>
+                            <option value="dify">Dify Custom Endpoint</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <label for="webllm-model">WebLLM Model:</label>
+                        <select id="webllm-model">
+                            <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5-mini (Recommended)</option>
+                            <option value="Phi-3-mini-4k-instruct-q4f16_1-MLC">Phi-3-mini</option>
+                            <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma-2-2b</option>
+                            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama-3.2-1B</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <label for="api-key">API Key (for cloud providers):</label>
+                    <input type="password" id="api-key" placeholder="Enter your API key">
+                </div>
+                <div class="config-group">
+                    <label for="api-endpoint">Custom Endpoint (for Dify):</label>
+                    <input type="text" id="api-endpoint" placeholder="https://your-dify-endpoint.com/api">
+                </div>
+                <div class="button-group">
+                    <button id="init-btn" class="btn-primary">🚀 Initialize System</button>
+                </div>
+                <div id="init-status" class="model-status" style="display: none;"></div>
+            </div>
+
+            <!-- Voice Input Section -->
+            <div class="section">
+                <h2>🎙️ Voice Input (Whisper WebGPU)</h2>
+                <div class="recording-indicator" id="recording-indicator">
+                    <div class="pulse"></div>
+                    <span>Recording...</span>
+                </div>
+                <div class="button-group">
+                    <button id="record-btn" class="btn-primary" disabled>🎤 Start Recording</button>
+                    <button id="stop-btn" class="btn-danger" disabled>⏹️ Stop Recording</button>
+                </div>
+                <div id="audio-status" class="status status-info" style="display: none;"></div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="section">
+                <h2>💬 Conversation</h2>
+                <div class="chat-container" id="chat-container"></div>
+                <div class="config-group">
+                    <textarea id="text-input" placeholder="Type your message here (or use voice input above)..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button id="send-btn" class="btn-primary" disabled>📤 Send Message</button>
+                    <button id="speak-btn" class="btn-success" disabled>🔊 Speak Response</button>
+                    <button id="clear-btn" class="btn-danger">🗑️ Clear Chat</button>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="section">
+                <h2>📊 System Status</h2>
+                <div id="system-status" class="status status-info">
+                    System not initialized. Click "Initialize System" to begin.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
