@@ -11,7 +11,7 @@ This is the fastest way to get started with complete privacy.
 ```bash
 git clone https://github.com/lucahttp/WebLLMWithVoice.git
 cd WebLLMWithVoice
-npm install
+npm install --legacy-peer-deps
 npm run dev
 ```
 

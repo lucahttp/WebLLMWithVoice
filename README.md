@@ -33,8 +33,10 @@ cd WebLLMWithVoice
 
 2. Install dependencies:
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
+
+> **Note:** The `--legacy-peer-deps` flag is needed due to peer dependency conflicts in some packages.
 
 3. Start the development server:
 ```bash
