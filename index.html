@@ -289,13 +289,21 @@
                             <option value="dify">Dify Custom Endpoint</option>
                         </select>
                     </div>
-                    <div class="config-group">
+                    <div class="config-group" id="webllm-model-group">
                         <label for="webllm-model">WebLLM Model:</label>
                         <select id="webllm-model">
                             <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5-mini (Recommended)</option>
                             <option value="Phi-3-mini-4k-instruct-q4f16_1-MLC">Phi-3-mini</option>
                             <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma-2-2b</option>
                             <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama-3.2-1B</option>
+                        </select>
+                    </div>
+                    <div class="config-group" id="openai-model-group" style="display: none;">
+                        <label for="openai-model">OpenAI Model:</label>
+                        <select id="openai-model">
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Fast & Affordable)</option>
+                            <option value="gpt-4">GPT-4 (Most Capable)</option>
+                            <option value="gpt-4-turbo">GPT-4 Turbo (Faster GPT-4)</option>
                         </select>
                     </div>
                 </div>

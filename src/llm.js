@@ -177,6 +177,8 @@ export class LLMManager {
         try {
             const apiKey = this.config.apiKey;
             const url = 'https://api.openai.com/v1/chat/completions';
+            // Allow model selection via config, default to gpt-3.5-turbo for cost-efficiency
+            const model = this.config.openaiModel || 'gpt-3.5-turbo';
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -185,7 +187,7 @@ export class LLMManager {
                     'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
+                    model: model,
                     messages: conversationHistory,
                     temperature: 0.7,
                     max_tokens: 512

@@ -13,6 +13,9 @@ class VoiceAssistant {
         this.conversationHistory = [];
         this.lastResponse = '';
         
+        // Configuration: set to false to review transcriptions before sending
+        this.autoSendTranscriptions = true;
+        
         this.initializeUI();
     }
 
@@ -28,8 +31,12 @@ class VoiceAssistant {
             
             llmProvider: document.getElementById('llm-provider'),
             webllmModel: document.getElementById('webllm-model'),
+            openaiModel: document.getElementById('openai-model'),
             apiKey: document.getElementById('api-key'),
             apiEndpoint: document.getElementById('api-endpoint'),
+            
+            webllmModelGroup: document.getElementById('webllm-model-group'),
+            openaiModelGroup: document.getElementById('openai-model-group'),
             
             textInput: document.getElementById('text-input'),
             chatContainer: document.getElementById('chat-container'),
@@ -67,8 +74,8 @@ class VoiceAssistant {
         
         this.elements.apiKey.parentElement.style.display = needsApiKey ? 'block' : 'none';
         this.elements.apiEndpoint.parentElement.style.display = needsEndpoint ? 'block' : 'none';
-        this.elements.webllmModel.parentElement.parentElement.style.display = 
-            provider === 'webllm' ? 'block' : 'none';
+        this.elements.webllmModelGroup.style.display = provider === 'webllm' ? 'block' : 'none';
+        this.elements.openaiModelGroup.style.display = provider === 'openai' ? 'block' : 'none';
     }
 
     async initialize() {
@@ -96,7 +103,8 @@ class VoiceAssistant {
                 provider,
                 apiKey: this.elements.apiKey.value,
                 endpoint: this.elements.apiEndpoint.value,
-                model: this.elements.webllmModel.value
+                model: this.elements.webllmModel.value,
+                openaiModel: this.elements.openaiModel.value
             };
 
             this.updateSystemStatus('Loading LLM...', 'info');
@@ -159,8 +167,13 @@ class VoiceAssistant {
                 this.addMessage(transcription, 'transcription');
                 this.elements.textInput.value = transcription;
                 
-                // Automatically send the transcribed message
-                await this.sendMessage();
+                // Automatically send the transcribed message (configurable behavior)
+                // Set this.autoSendTranscriptions = false to review before sending
+                if (this.autoSendTranscriptions) {
+                    await this.sendMessage();
+                } else {
+                    this.updateAudioStatus('Transcription ready. Review and click Send.', 'info');
+                }
             } else {
                 this.updateAudioStatus('No speech detected. Please try again.', 'error');
             }

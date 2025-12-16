@@ -15,7 +15,11 @@ export class WhisperManager {
             progressCallback?.('Downloading Whisper model...');
             
             // Initialize the Whisper model with WebGPU support
-            // Using distil-whisper for faster performance
+            // Using 'whisper-tiny.en' for optimal balance of speed and accuracy:
+            // - Small size (~40MB) for fast downloads and initialization
+            // - English-only for better accuracy than multilingual tiny models
+            // - Real-time capable on most devices with WebGPU
+            // - Alternatives: whisper-base.en (larger, more accurate but slower)
             this.transcriber = await pipeline(
                 'automatic-speech-recognition',
                 'Xenova/whisper-tiny.en',
