@@ -1,0 +1,29 @@
+{
+  "name": "webllm-with-voice",
+  "version": "1.0.0",
+  "description": "Realtime Whisper-WebGPU with Edge TTS and LLM integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "whisper",
+    "webgpu",
+    "tts",
+    "llm",
+    "webllm",
+    "speech-recognition",
+    "text-to-speech"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.46",
+    "@xenova/transformers": "^2.17.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
