@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // REPLACE 'repo-name' WITH YOUR ACTUAL REPOSITORY NAME
+  base: '/WebLLMWithVoice/',
   server: {
     port: 3000,
     open: true,
